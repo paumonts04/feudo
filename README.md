@@ -18,3 +18,6 @@ Proyecto final de 2º de DAM.
 ## Entregas
 - **v1 (diciembre 2026):** web con usuarios, roles, foro y moderación.
 - **v2 (enero – junio 2027):** app móvil con GPS, mapa y conquista de territorio.
+
+## Licencia
+Este proyecto se distribuye bajo la licencia MIT. Ver [LICENSE](LICENSE).

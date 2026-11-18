@@ -166,3 +166,51 @@ Siguen el mismo criterio que las de `posts`:
 
 Aplicar las mismas reglas a posts y comentarios hace el sistema de permisos
 coherente y más fácil de mantener.
+
+## 5. Espacio de trabajo (Google Drive)
+
+Carpeta compartida `Feudo` con los tres integrantes como editores. Contiene todos
+los archivos que no forman parte del producto publicado.
+
+| Carpeta | Contenido |
+|---|---|
+| `01_Gestion` | Actas de reuniones, planificación y acuerdos del equipo |
+| `02_Entregas` | Documentos entregados en cada actividad |
+| `03_Diagramas` | Diagramas UML (clases, comunicación) y modelo de datos |
+| `04_Diseño` | Wireframes, mockups, logo y paleta de colores |
+| `05_Investigacion` | Referencias, aplicaciones similares y documentación externa |
+| `06_Recursos` | Imágenes, iconos y fuentes |
+| `07_Defensa` | Presentación y guion para el tribunal |
+
+Las carpetas se numeran para mantener un orden fijo y cada una tiene un único
+propósito, de modo que cualquier integrante sabe dónde guardar o buscar un archivo.
+
+**Alternativas consideradas:**
+| Alternativa | Motivo de descarte |
+|---|---|
+| Guardar estos archivos en el repositorio | Mezcla documentos y binarios (imágenes, PDF) con el código del producto |
+| OneDrive / Dropbox | Funcionalidad equivalente; Google Drive ya lo usaba todo el equipo |
+
+## 5. Espacio de trabajo (Google Drive)
+
+Carpeta compartida `Feudo` con los tres integrantes como editores. Contiene todos
+los archivos que no forman parte del producto publicado.
+
+| Carpeta | Contenido |
+|---|---|
+| `01_Gestion` | Actas de reuniones, planificación y acuerdos del equipo |
+| `02_Entregas` | Documentos entregados en cada actividad |
+| `03_Diagramas` | Diagramas UML (clases, comunicación) y modelo de datos |
+| `04_Diseño` | Wireframes, mockups, logo y paleta de colores |
+| `05_Investigacion` | Referencias, aplicaciones similares y documentación externa |
+| `06_Recursos` | Imágenes, iconos y fuentes |
+| `07_Defensa` | Presentación y guion para el tribunal |
+
+Las carpetas se numeran para mantener un orden fijo y cada una tiene un único
+propósito, de modo que cualquier integrante sabe dónde guardar o buscar un archivo.
+
+**Alternativas consideradas:**
+| Alternativa | Motivo de descarte |
+|---|---|
+| Guardar estos archivos en el repositorio | Mezcla documentos y binarios (imágenes, PDF) con el código del producto |
+| OneDrive / Dropbox | Funcionalidad equivalente; Google Drive ya lo usaba todo el equipo |
