@@ -376,3 +376,13 @@ filas, no columnas, por lo que también podrían modificar el contenido o el aut
   valor no válido.
 - Son la única vía para modificar `baneado` y `rol`, ya que `perfiles` no tiene
   política de UPDATE.
+
+  ### Creación del primer administrador
+Como solo un ADMIN puede asignar roles, el primer administrador se asigna manualmente
+desde el SQL Editor de Supabase (que se ejecuta como `postgres` y no está sujeto a RLS),
+una vez registrado el usuario desde la aplicación. A partir de ahí, el resto de roles
+se gestionan desde el panel de administración.
+
+No es posible crear usuarios desde el panel de Supabase (Authentication → Add user):
+al no enviar el `nombre` en los metadatos, el trigger `crear_perfil()` falla y se cancela
+el alta, lo que confirma que no pueden existir usuarios sin perfil.
