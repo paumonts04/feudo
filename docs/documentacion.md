@@ -214,3 +214,165 @@ propósito, de modo que cualquier integrante sabe dónde guardar o buscar un arc
 |---|---|
 | Guardar estos archivos en el repositorio | Mezcla documentos y binarios (imágenes, PDF) con el código del producto |
 | OneDrive / Dropbox | Funcionalidad equivalente; Google Drive ya lo usaba todo el equipo |
+
+# Feudo · Gestión del proyecto en fase de producción
+
+**Equipo:** Santiago Vivero, Samuel Izquierdo, Pau Montes
+**Fecha:** [fecha de entrega]
+
+## 1. Enlaces
+
+| Herramienta | Enlace |
+|---|---|
+| Repositorio (GitHub) | https://github.com/paumonts04/feudo |
+| Espacio de trabajo (Google Drive) | [enlace a la carpeta Feudo] |
+| Gestor de tareas (Google Sheets) | https://docs.google.com/spreadsheets/d/1PM-yw2Ml7tYWGWedb58pwCYjjr7BKV1q7VCSsqFV-Sk/edit |
+
+## 2. Repositorio común (GitHub)
+
+Repositorio privado `paumonts04/feudo` con los tres integrantes como colaboradores.
+Se trabaja con tres tipos de ramas: `main` (versiones entregadas), `develop` (integración,
+rama por defecto) y `feature/<nombre>` (una por funcionalidad, integrada mediante Pull Request).
+
+**Licencia:** MIT. Permite usar, copiar y modificar el código manteniendo la autoría.
+
+**Estructura de carpetas:**
+
+| Carpeta / archivo | Función |
+|---|---|
+| `client/` | Aplicación web en React + Vite |
+| `database/` | Script `schema.sql` que crea la base de datos en Supabase |
+| `docs/` | Documentación técnica del proyecto |
+| `.gitignore` | Excluye dependencias (`node_modules/`), builds (`dist/`), logs y archivos `.env` con credenciales |
+| `README.md` | Presentación del proyecto: descripción, equipo, tecnologías y entregas |
+| `LICENSE` | Texto de la licencia MIT |
+
+[Captura: página principal del repositorio con las carpetas y el README]
+[Captura: Settings → Collaborators con los tres integrantes]
+[Captura: archivo LICENSE]
+
+## 3. Espacio de trabajo (Google Drive)
+
+Carpeta compartida `Feudo`, con los tres integrantes como editores, para todos los
+archivos que no forman parte del producto publicado.
+
+| Carpeta | Función |
+|---|---|
+| `01_Gestion` | Planificación, actas de reuniones y gestor de tareas |
+| `02_Entregas` | Documentos entregados en cada actividad |
+| `03_Diagramas` | Diagramas UML (clases, comunicación) y modelo de datos |
+| `04_Diseño` | Wireframes, mockups, logo y paleta de colores |
+| `05_Investigacion` | Referencias, aplicaciones similares y documentación externa |
+| `06_Recursos` | Imágenes, iconos y fuentes |
+| `07_Defensa` | Presentación y guion para el tribunal |
+
+Las carpetas están numeradas para mantener siempre el mismo orden.
+
+[Captura: carpeta Feudo con las subcarpetas]
+[Captura: ventana Compartir con los tres integrantes]
+
+## 4. Gestor de tareas (Google Sheets)
+
+Hoja de cálculo `Hoja de Tareas`, dentro de `01_Gestion`. Cada tarea tiene:
+
+| Campo | Valores | Uso |
+|---|---|---|
+| ID | T01, T02… | Identificar la tarea (también en los commits) |
+| Módulo | Gestión, Infraestructura, Base de Datos, Autenticación, Comunidad, Moderación, Administración, Documentación | Categoría |
+| Estado | Pendiente, En progreso, Completada | Seguimiento |
+| Prioridad | Alta, Media, Baja | Orden en que se aborda |
+| Importancia | Imprescindible, Recomendable, Opcional | Si es necesaria para la entrega o puede recortarse |
+| Asignado | Santiago, Samuel, Pau | Responsable |
+| Entrega | v1, v2 | Versión a la que pertenece |
+
+Todos los campos de valores cerrados usan desplegables con validación, y un filtro en la
+cabecera permite ver qué está haciendo cada integrante en cada momento.
+
+[Captura: hoja de tareas completa con los desplegables]
+[Captura: filtro aplicado por Asignado o por Estado]
+
+## 5. Listado de tareas actuales
+
+| ID | Módulo | Tarea | Estado | Prioridad |
+|---|---|---|---|---|
+| T01 | Infraestructura | Inicializar proyecto React + Vite | En progreso | Alta |
+| T02 | Infraestructura | Instalar dependencias (react-router-dom, supabase-js) | En progreso | Alta |
+| T03 | Infraestructura | Configurar enrutador con rutas públicas y protegidas | Pendiente | Alta |
+| T04 | Infraestructura | Configurar cliente de Supabase y variables .env | Pendiente | Alta |
+| T05 | Autenticación | Maquetar formulario de Login | En progreso | Alta |
+| T06 | Autenticación | Conectar Login con Supabase Auth | Pendiente | Alta |
+| T07 | Autenticación | Maquetar formulario de Registro | Pendiente | Alta |
+| T08 | Autenticación | Conectar Registro con Supabase Auth | Pendiente | Alta |
+| T09 | Comunidad | Layout principal del Foro y Navbar | Pendiente | Alta |
+| T10 | Comunidad | Componente PostCard | Pendiente | Alta |
+| T11 | Comunidad | Formulario para publicar (CreatePost) | Pendiente | Alta |
+| T12 | Comunidad | Conectar publicaciones con Supabase | Pendiente | Alta |
+| T13 | Comunidad | CommentList y formulario de comentarios | Pendiente | Media |
+| T14 | Administración | Pantalla de gestión de usuarios (Panel Admin) | Pendiente | Media |
+| T15 | Moderación | Interfaz para ocultar y mostrar posts y comentarios | Pendiente | Media |
+| T16 | Base de Datos | Rehacer esquema de Supabase y políticas RLS | En progreso | Alta |
+| T17 | Gestión | Crear el repositorio nuevo | Completada | Alta |
+| T18 | Base de Datos | Crear perfiles, posts y comentarios con RLS | Completada | Alta |
+| T19 | Gestión | Añadir licencia MIT | Completada | Alta |
+| T20 | Gestión | Crear y compartir el espacio de trabajo en Drive | Completada | Alta |
+
+
+### Tabla `me_gusta`
+Equivale a la clase `MeGusta` del diagrama (composición con `Post`).
+
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `id` | bigint identity (PK) | Autoincremental |
+| `post_id` | bigint (FK → `posts`) | Post valorado; se borra en cascada con el post |
+| `usuario_id` | uuid (FK → `perfiles`) | Usuario que da el me gusta; por defecto `auth.uid()` |
+| `fecha` | timestamptz | Automática |
+
+- La restricción `unique (post_id, usuario_id)` garantiza en la base de datos que un
+  usuario solo puede dar un me gusta por post.
+- El índice que crea esa restricción también se usa para contar los me gusta de
+  un post, por lo que no se añade un índice adicional.
+
+
+  ### Políticas RLS de `me_gusta`
+| Operación | Quién | Condición |
+|---|---|---|
+| SELECT | Usuarios autenticados | Todos (para mostrar contadores) |
+| INSERT | Usuarios autenticados | Usuario = el de la sesión y no baneado |
+| DELETE | Usuarios autenticados | Solo sus propios me gusta y no baneado |
+| UPDATE | Nadie | Un me gusta solo se da o se quita |
+
+A diferencia de posts y comentarios, aquí sí se permite DELETE: quitar un me gusta
+consiste en borrar su fila. En las políticas de DELETE se usa `using`, que determina
+qué filas existentes puede borrar el usuario.
+
+### Funciones de moderación
+- `cambiar_visibilidad_post(p_post_id, p_oculto)`
+- `cambiar_visibilidad_comentario(p_comentario_id, p_oculto)`
+
+Permiten a moderadores y administradores ocultar (`true`) o volver a mostrar (`false`)
+un post o comentario. Se invocan desde React con `supabase.rpc()`.
+
+- Son `security definer` porque no existe política de UPDATE sobre estas tablas:
+  la función es la única vía para modificar `oculto`, y no permite cambiar ninguna
+  otra columna.
+- Verifican dentro de la propia función que quien llama es MODERADOR o ADMIN y no
+  está baneado; en caso contrario lanzan una excepción.
+- Se usa `coalesce` porque, sin sesión, `rol_actual()` devuelve `null` y la
+  comparación `null not in (...)` no se evalúa como verdadera, lo que permitiría
+  saltarse la comprobación.
+
+**Alternativa descartada:** una política RLS de UPDATE para moderadores. RLS controla
+filas, no columnas, por lo que también podrían modificar el contenido o el autor.
+
+
+### Funciones de administración
+- `cambiar_baneo(p_usuario_id, p_baneado)`: banea (`true`) o desbanea (`false`).
+- `cambiar_rol(p_usuario_id, p_rol)`: asigna `USUARIO`, `MODERADOR` o `ADMIN`.
+
+- Solo pueden ejecutarlas administradores no baneados; en otro caso lanzan una excepción.
+- Un administrador no puede modificar su propio baneo ni su rol, evitando que la
+  aplicación se quede sin administradores por error.
+- El parámetro `p_rol` es del tipo enum `rol`, por lo que PostgreSQL rechaza cualquier
+  valor no válido.
+- Son la única vía para modificar `baneado` y `rol`, ya que `perfiles` no tiene
+  política de UPDATE.
