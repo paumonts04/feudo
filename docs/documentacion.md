@@ -409,3 +409,30 @@ Se usa **ESLint**, que analiza el código y avisa de errores y malas prácticas
 | Alternativa | Motivo de descarte |
 |---|---|
 | OxLint | Más rápido, pero más reciente y con menos reglas y plugins; en un proyecto de este tamaño la diferencia de velocidad no es relevante |
+
+### Conexión con Supabase: `supabase-js`
+El cliente se comunica con Supabase mediante la librería oficial `@supabase/supabase-js`,
+que gestiona las consultas a las tablas, la autenticación (sesión y token JWT) y las
+llamadas a funciones SQL (`rpc`). La versión exacta queda fijada en `package-lock.json`
+para que todo el equipo use la misma.
+
+### Cliente de Supabase (`src/lib/supabaseClient.js`)
+Crea una única instancia del cliente de Supabase a partir de las variables de entorno
+y la exporta para toda la aplicación. Equivale a la clase `DataBaseManager` del
+diagrama de clases. Si faltan las variables de entorno, la aplicación se detiene con
+un mensaje explícito en lugar de fallar más adelante.
+
+### Limpieza de la plantilla
+Se eliminaron los recursos de ejemplo de Vite (logos, contador y estilos) y se dejó un
+componente `App` mínimo, el idioma del documento en español (`lang="es"`) y el título
+de la aplicación, como punto de partida limpio para las pantallas del proyecto.
+
+### Navegación: React Router
+Se usa **React Router** (`react-router-dom`) para gestionar las pantallas de la
+aplicación (login, registro, foro, administración) como una *Single Page Application*:
+la navegación cambia la vista sin recargar la página.
+
+| Alternativa | Motivo de descarte |
+|---|---|
+| Mostrar pantallas con estados (`useState`) | Sin URLs propias: no se puede recargar, compartir enlaces ni usar el botón atrás |
+| TanStack Router | Menos extendido; React Router es el estándar y el que conoce el equipo |
