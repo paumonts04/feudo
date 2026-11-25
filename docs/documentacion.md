@@ -63,15 +63,14 @@ Se usa una versión simplificada de **Git Flow**:
 - `main`: solo versiones estables y entregadas.
 - `develop`: rama de integración y rama por defecto del repositorio.
 - `feature/<nombre>`: una rama por funcionalidad, creada desde `develop` e integrada
-  mediante Pull Request.
+  en `develop` con `git merge`.
 
-Los cambios que afectan al código o a la base de datos se integran siempre mediante
-Pull Request revisada por otro integrante. Cada Pull Request indica en su descripción
-qué incluye y los ID de las tareas del gestor que resuelve. Tras el merge, la rama
-`feature/*` se elimina. Los cambios que solo afectan a la documentación (`docs/`,
-`README.md`) pueden subirse directamente a `develop`.
+Cada funcionalidad se desarrolla en su rama `feature/*` y, al terminarla, se integra
+en `develop` mediante `git merge` y la rama se elimina. Dado el tamaño del equipo
+(tres personas que trabajan juntas), la revisión del código se hace en común en lugar
+de mediante Pull Requests.
 
-Durante el desarrollo se subió por error un proyecto Next.js directamente a `main`.   ← AQUÍ
+Durante el desarrollo se subió por error un proyecto Next.js directamente a `main`.  
 Como aún no se había entregado ninguna versión, se restableció `main` a su commit
 inicial (`git reset --hard` + `git push --force-with-lease`), y se acordó crear siempre
 las ramas de funcionalidad desde `develop`.
@@ -81,6 +80,7 @@ las ramas de funcionalidad desde `develop`.
 | Trabajar todos en `main` | Riesgo de romper la versión estable y conflictos constantes |
 | Git Flow completo (`release/*`, `hotfix/*`) | Demasiado complejo para tres personas y dos entregas |
 | Trunk-based development | Requiere integración continua y tests automáticos que aún no tenemos |
+| Pull Requests con revisión obligatoria | Añade pasos de gestión innecesarios para un equipo de tres personas que trabaja de forma conjunta |
 
 ## 2. Arquitectura: React + Supabase sin backend propio
 
@@ -363,7 +363,7 @@ Las tareas se gestionan en la hoja `Hoja de Tareas`, dentro de `01_Gestion` en D
 
 | Columna | Valores | Uso |
 |---|---|---|
-| ID | T01, T02… | Referenciar tareas (por ejemplo, en commits y Pull Requests) |
+| ID | T01, T02… | Referenciar tareas (por ejemplo, en los mensajes de commit) |
 | Módulo | Gestión, Infraestructura, Base de Datos, Autenticación, Comunidad, Moderación, Administración, Documentación | Categoría de la tarea |
 | Tarea | Texto | Descripción concreta |
 | Estado | Pendiente, En progreso, Completada | Seguimiento |
@@ -436,3 +436,12 @@ la navegación cambia la vista sin recargar la página.
 |---|---|
 | Mostrar pantallas con estados (`useState`) | Sin URLs propias: no se puede recargar, compartir enlaces ni usar el botón atrás |
 | TanStack Router | Menos extendido; React Router es el estándar y el que conoce el equipo |
+
+### Variables de entorno
+La URL del proyecto y la clave pública (*publishable key*) de Supabase se definen en
+`client/.env.local`, que no se versiona. El repositorio incluye `client/.env.example`
+con los nombres de las variables y sin valores.
+
+- Las variables llevan el prefijo `VITE_`, el único que Vite expone al código del cliente.
+- Solo se usa la clave pública: la seguridad de los datos depende de las políticas RLS,
+  no de ocultar esta clave. La clave secreta (`service_role`) nunca se usa en el cliente.
