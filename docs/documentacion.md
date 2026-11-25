@@ -382,3 +382,30 @@ Las tareas se gestionan en la hoja `Hoja de Tareas`, dentro de `01_Gestion` en D
 | Notion | Requiere aprender otra herramienta; Sheets ya está integrado en el espacio de trabajo |
 | GitHub Projects | Muy orientado al código; parte de las tareas son de gestión y documentación |
 | Trello | Prioridades y categorías más limitadas en la versión gratuita |
+
+## 6. Cliente web: React + Vite
+
+### Decisión
+La aplicación web se desarrolla con **React** y se crea y ejecuta con **Vite**, en la
+carpeta `client/` del repositorio.
+
+### Justificación
+- **React**: biblioteca de componentes reutilizables, muy extendida y conocida por el equipo.
+- **Vite**: arranque del servidor de desarrollo casi instantáneo y recarga en caliente;
+  es la herramienta recomendada actualmente para crear proyectos React.
+- **Carpeta `client/`**: separa el código de la web del resto del repositorio
+  (`database/`, `docs/`) y deja sitio para la app móvil de la v2 en su propia carpeta.
+
+| Alternativa | Motivo de descarte |
+|---|---|
+| Create React App | Abandonado oficialmente; más lento y sin mantenimiento |
+| Next.js | Orientado a renderizado en servidor; innecesario sin backend propio |
+| Angular / Vue | El equipo tiene más experiencia con React |
+
+### Linter: ESLint
+Se usa **ESLint**, que analiza el código y avisa de errores y malas prácticas
+(por ejemplo, un uso incorrecto de los hooks de React) antes de ejecutarlo.
+
+| Alternativa | Motivo de descarte |
+|---|---|
+| OxLint | Más rápido, pero más reciente y con menos reglas y plugins; en un proyecto de este tamaño la diferencia de velocidad no es relevante |
