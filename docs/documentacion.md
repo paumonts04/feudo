@@ -63,15 +63,14 @@ Se usa una versión simplificada de **Git Flow**:
 - `main`: solo versiones estables y entregadas.
 - `develop`: rama de integración y rama por defecto del repositorio.
 - `feature/<nombre>`: una rama por funcionalidad, creada desde `develop` e integrada
-  mediante Pull Request.
+  en `develop` con `git merge`.
 
-Los cambios que afectan al código o a la base de datos se integran siempre mediante
-Pull Request revisada por otro integrante. Cada Pull Request indica en su descripción
-qué incluye y los ID de las tareas del gestor que resuelve. Tras el merge, la rama
-`feature/*` se elimina. Los cambios que solo afectan a la documentación (`docs/`,
-`README.md`) pueden subirse directamente a `develop`.
+Cada funcionalidad se desarrolla en su rama `feature/*` y, al terminarla, se integra
+en `develop` mediante `git merge` y la rama se elimina. Dado el tamaño del equipo
+(tres personas que trabajan juntas), la revisión del código se hace en común en lugar
+de mediante Pull Requests.
 
-Durante el desarrollo se subió por error un proyecto Next.js directamente a `main`.   ← AQUÍ
+Durante el desarrollo se subió por error un proyecto Next.js directamente a `main`.  
 Como aún no se había entregado ninguna versión, se restableció `main` a su commit
 inicial (`git reset --hard` + `git push --force-with-lease`), y se acordó crear siempre
 las ramas de funcionalidad desde `develop`.
@@ -81,6 +80,7 @@ las ramas de funcionalidad desde `develop`.
 | Trabajar todos en `main` | Riesgo de romper la versión estable y conflictos constantes |
 | Git Flow completo (`release/*`, `hotfix/*`) | Demasiado complejo para tres personas y dos entregas |
 | Trunk-based development | Requiere integración continua y tests automáticos que aún no tenemos |
+| Pull Requests con revisión obligatoria | Añade pasos de gestión innecesarios para un equipo de tres personas que trabaja de forma conjunta |
 
 ## 2. Arquitectura: React + Supabase sin backend propio
 
@@ -363,7 +363,7 @@ Las tareas se gestionan en la hoja `Hoja de Tareas`, dentro de `01_Gestion` en D
 
 | Columna | Valores | Uso |
 |---|---|---|
-| ID | T01, T02… | Referenciar tareas (por ejemplo, en commits y Pull Requests) |
+| ID | T01, T02… | Referenciar tareas (por ejemplo, en los mensajes de commit) |
 | Módulo | Gestión, Infraestructura, Base de Datos, Autenticación, Comunidad, Moderación, Administración, Documentación | Categoría de la tarea |
 | Tarea | Texto | Descripción concreta |
 | Estado | Pendiente, En progreso, Completada | Seguimiento |
@@ -382,3 +382,66 @@ Las tareas se gestionan en la hoja `Hoja de Tareas`, dentro de `01_Gestion` en D
 | Notion | Requiere aprender otra herramienta; Sheets ya está integrado en el espacio de trabajo |
 | GitHub Projects | Muy orientado al código; parte de las tareas son de gestión y documentación |
 | Trello | Prioridades y categorías más limitadas en la versión gratuita |
+
+## 6. Cliente web: React + Vite
+
+### Decisión
+La aplicación web se desarrolla con **React** y se crea y ejecuta con **Vite**, en la
+carpeta `client/` del repositorio.
+
+### Justificación
+- **React**: biblioteca de componentes reutilizables, muy extendida y conocida por el equipo.
+- **Vite**: arranque del servidor de desarrollo casi instantáneo y recarga en caliente;
+  es la herramienta recomendada actualmente para crear proyectos React.
+- **Carpeta `client/`**: separa el código de la web del resto del repositorio
+  (`database/`, `docs/`) y deja sitio para la app móvil de la v2 en su propia carpeta.
+
+| Alternativa | Motivo de descarte |
+|---|---|
+| Create React App | Abandonado oficialmente; más lento y sin mantenimiento |
+| Next.js | Orientado a renderizado en servidor; innecesario sin backend propio |
+| Angular / Vue | El equipo tiene más experiencia con React |
+
+### Linter: ESLint
+Se usa **ESLint**, que analiza el código y avisa de errores y malas prácticas
+(por ejemplo, un uso incorrecto de los hooks de React) antes de ejecutarlo.
+
+| Alternativa | Motivo de descarte |
+|---|---|
+| OxLint | Más rápido, pero más reciente y con menos reglas y plugins; en un proyecto de este tamaño la diferencia de velocidad no es relevante |
+
+### Conexión con Supabase: `supabase-js`
+El cliente se comunica con Supabase mediante la librería oficial `@supabase/supabase-js`,
+que gestiona las consultas a las tablas, la autenticación (sesión y token JWT) y las
+llamadas a funciones SQL (`rpc`). La versión exacta queda fijada en `package-lock.json`
+para que todo el equipo use la misma.
+
+### Cliente de Supabase (`src/lib/supabaseClient.js`)
+Crea una única instancia del cliente de Supabase a partir de las variables de entorno
+y la exporta para toda la aplicación. Equivale a la clase `DataBaseManager` del
+diagrama de clases. Si faltan las variables de entorno, la aplicación se detiene con
+un mensaje explícito en lugar de fallar más adelante.
+
+### Limpieza de la plantilla
+Se eliminaron los recursos de ejemplo de Vite (logos, contador y estilos) y se dejó un
+componente `App` mínimo, el idioma del documento en español (`lang="es"`) y el título
+de la aplicación, como punto de partida limpio para las pantallas del proyecto.
+
+### Navegación: React Router
+Se usa **React Router** (`react-router-dom`) para gestionar las pantallas de la
+aplicación (login, registro, foro, administración) como una *Single Page Application*:
+la navegación cambia la vista sin recargar la página.
+
+| Alternativa | Motivo de descarte |
+|---|---|
+| Mostrar pantallas con estados (`useState`) | Sin URLs propias: no se puede recargar, compartir enlaces ni usar el botón atrás |
+| TanStack Router | Menos extendido; React Router es el estándar y el que conoce el equipo |
+
+### Variables de entorno
+La URL del proyecto y la clave pública (*publishable key*) de Supabase se definen en
+`client/.env.local`, que no se versiona. El repositorio incluye `client/.env.example`
+con los nombres de las variables y sin valores.
+
+- Las variables llevan el prefijo `VITE_`, el único que Vite expone al código del cliente.
+- Solo se usa la clave pública: la seguridad de los datos depende de las políticas RLS,
+  no de ocultar esta clave. La clave secreta (`service_role`) nunca se usa en el cliente.
