@@ -1,3 +1,29 @@
+# Feudo · Documentación técnica
+
+Autores: Santiago Vivero, Samuel Izquierdo, Pau Montes
+
+## 1. Control de versiones: Git y GitHub
+
+### Decisión
+El código se gestiona con **Git** y se aloja en **GitHub** (`paumonts04/feudo`, repositorio
+privado), con los tres integrantes del equipo como colaboradores.
+
+El repositorio se creó de nuevo al cambiar la arquitectura (eliminación del backend Express).
+El repositorio anterior se renombró a `feudo-old` y se archivó en lugar de borrarse,
+para conservar el trabajo previo sin que interfiera con el nuevo.
+
+### Justificación
+- **Git** permite trabajar los tres en paralelo, revisar cambios y volver a versiones anteriores.
+- **GitHub** centraliza el código, facilita las Pull Requests para revisar el trabajo
+  entre compañeros y deja constancia del historial de cada integrante.
+- **Repositorio privado** hasta la defensa, para proteger el trabajo.
+
+| Alternativa | Motivo de descarte |
+|---|---|
+| GitLab / Bitbucket | Funcionalidad equivalente; GitHub es el más usado y el que ya conocía el equipo |
+| Compartir carpetas (Drive, zip) | Sin historial, sin control de conflictos ni revisión de cambios |
+| Borrar el repositorio anterior | Irreversible; archivarlo conserva el trabajo sin riesgo |
+
 ### Estructura del repositorio
 | Carpeta / archivo | Contenido |
 |---|---|
@@ -6,6 +32,7 @@
 | `docs/` | Documentación técnica |
 | `.gitignore` | Archivos excluidos del control de versiones |
 | `README.md` | Presentación del proyecto |
+| `LICENSE` | Texto de la licencia MIT |
 
 ### Archivos excluidos (`.gitignore`)
 Se excluyen las dependencias (`node_modules/`), los builds (`dist/`), los logs y,
@@ -13,20 +40,36 @@ sobre todo, los archivos `.env` con las claves de Supabase, para no publicar
 credenciales. Se mantiene `.env.example` como plantilla sin valores reales.
 
 ### README
-El `README.md` presenta el proyecto en GitHub: descripción, equipo, tecnologías
-y entregas. La justificación técnica detallada se mantiene en `docs/documentacion.md`
+El `README.md` presenta el proyecto en GitHub: descripción, equipo, tecnologías,
+entregas y licencia. La justificación técnica detallada se mantiene en este documento
 para no sobrecargar el README.
+
+### Licencia
+El proyecto se publica bajo la **licencia MIT**: permite usar, copiar y modificar
+el código siempre que se mantenga la autoría original.
+
+| Alternativa | Motivo de descarte |
+|---|---|
+| GPL-3.0 | Obliga a publicar con la misma licencia cualquier versión derivada; más restrictiva de lo necesario para un proyecto educativo |
+| Sin licencia | Impide cualquier reutilización del código |
 
 ### Convención de commits
 Se sigue **Conventional Commits** (`feat:`, `fix:`, `docs:`, `chore:`…) para que el
-historial sea legible y se identifique el tipo de cada cambio.
+historial sea legible y se identifique el tipo de cada cambio. Opcionalmente se indica
+el ámbito entre paréntesis, por ejemplo `feat(database):`.
 
 ### Flujo de ramas
 Se usa una versión simplificada de **Git Flow**:
 - `main`: solo versiones estables y entregadas.
 - `develop`: rama de integración y rama por defecto del repositorio.
 - `feature/<nombre>`: una rama por funcionalidad, creada desde `develop` e integrada
-  mediante Pull Request revisada por otro integrante.
+  mediante Pull Request.
+
+Los cambios que afectan al código o a la base de datos se integran siempre mediante
+Pull Request revisada por otro integrante. Cada Pull Request indica en su descripción
+qué incluye y los ID de las tareas del gestor que resuelve. Tras el merge, la rama
+`feature/*` se elimina. Los cambios que solo afectan a la documentación (`docs/`,
+`README.md`) pueden subirse directamente a `develop`.
 
 | Alternativa | Motivo de descarte |
 |---|---|
@@ -34,7 +77,56 @@ Se usa una versión simplificada de **Git Flow**:
 | Git Flow completo (`release/*`, `hotfix/*`) | Demasiado complejo para tres personas y dos entregas |
 | Trunk-based development | Requiere integración continua y tests automáticos que aún no tenemos |
 
-## 4. Base de datos
+## 2. Arquitectura: React + Supabase sin backend propio
+
+### Decisión
+La aplicación web se compone únicamente de un cliente React (Vite) que se comunica
+directamente con Supabase mediante la librería oficial `supabase-js`. Se descartó el
+backend en Express desarrollado inicialmente.
+
+### Justificación
+- **Menos código y menos infraestructura**: Supabase ya ofrece API REST sobre PostgreSQL,
+  autenticación y almacenamiento; un backend propio duplicaría esa funcionalidad.
+- **Seguridad en la base de datos**: como el código del cliente es público, todos los
+  permisos se aplican en PostgreSQL mediante Row Level Security (RLS) y funciones SQL.
+  El cliente solo usa la clave pública; la clave `service_role` nunca sale de Supabase.
+- **Escalable a la v2**: Supabase incluye PostGIS (cálculo geográfico del territorio)
+  y Edge Functions si en el futuro se necesita lógica en servidor.
+
+| Alternativa | Motivo de descarte |
+|---|---|
+| Backend Express + PostgreSQL | Más código, despliegue y mantenimiento sin aportar funcionalidad nueva |
+| Llamadas `fetch` a la API REST | Obliga a gestionar tokens y cabeceras manualmente |
+| Tabla propia con contraseñas | Inseguro sin backend; Supabase Auth gestiona hash, sesiones (JWT) y recuperación |
+
+### Autenticación y roles
+- El registro e inicio de sesión se hacen con **Supabase Auth** (email y contraseña).
+- La tabla `perfiles` amplía `auth.users` con nombre, rol y estado de baneo. Se crea
+  automáticamente mediante un trigger al registrarse un usuario.
+- El rol (`USUARIO`, `MODERADOR`, `ADMIN`) se guarda en `perfiles` y las políticas RLS
+  lo consultan con una función SQL. Se descartó guardarlo en el JWT porque los cambios
+  de rol no serían inmediatos.
+- Las acciones privilegiadas (ocultar contenido, banear, cambiar rol) se implementan
+  como funciones SQL `security definer` que verifican el rol de quien las invoca,
+  ya que RLS no permite restringir columnas concretas.
+- Un usuario baneado puede iniciar sesión, pero las políticas le impiden publicar,
+  comentar o dar me gusta.
+
+### Correspondencia con el diagrama de clases
+| Clase del diagrama | Implementación |
+|---|---|
+| DataBaseManager | Cliente `supabase` (`supabaseClient.js`) |
+| LoginManager | `supabase.auth` |
+| UserManager / ForumManager | Módulos JS que llaman a tablas y funciones RPC |
+| Usuario | Tabla `perfiles` (vinculada a `auth.users`) |
+
+### Acceso del equipo a Supabase
+El proyecto `feudo` (región Frankfurt) pertenece a una organización de Supabase en la
+que los tres integrantes son miembros: uno como *Owner* y los demás como *Developer*.
+Así todos pueden trabajar sobre la base de datos sin compartir credenciales personales,
+y cada acción queda asociada a su autor.
+
+## 3. Base de datos
 
 ### Recreación del esquema
 La primera versión del esquema guardaba los usuarios y sus contraseñas en una tabla
@@ -42,6 +134,8 @@ propia (`usuarios` con `password_hash`). Al pasar a Supabase Auth, esa tabla dej
 tener sentido, por lo que se eliminó el esquema anterior y se creó de nuevo desde cero.
 Se borraron primero las tablas dependientes (`me_gusta`, `comentarios`, `posts`)
 y después `usuarios` y el tipo `rol`.
+
+El esquema completo se encuentra en `database/schema.sql`.
 
 ### Tabla `perfiles`
 Equivale a la clase `Usuario` del diagrama. Amplía la tabla `auth.users` de Supabase Auth
@@ -138,7 +232,7 @@ Equivale a la clase `Post` del diagrama.
 - No se permite UPDATE directo porque RLS controla filas, no columnas: una política de
   actualización permitiría modificar también el contenido o el autor.
 
-  ### Tabla `comentarios`
+### Tabla `comentarios`
 Equivale a la clase `Comentario` del diagrama (composición con `Post`).
 
 | Columna | Tipo | Descripción |
@@ -155,7 +249,7 @@ Equivale a la clase `Comentario` del diagrama (composición con `Post`).
 - Índice `comentarios_post_id_idx`, ya que PostgreSQL no indexa automáticamente
   las claves foráneas y los comentarios siempre se consultan por post.
 
-  ### Políticas RLS de `comentarios`
+### Políticas RLS de `comentarios`
 Siguen el mismo criterio que las de `posts`:
 
 | Operación | Quién | Condición |
@@ -166,156 +260,6 @@ Siguen el mismo criterio que las de `posts`:
 
 Aplicar las mismas reglas a posts y comentarios hace el sistema de permisos
 coherente y más fácil de mantener.
-
-## 5. Espacio de trabajo (Google Drive)
-
-Carpeta compartida `Feudo` con los tres integrantes como editores. Contiene todos
-los archivos que no forman parte del producto publicado.
-
-| Carpeta | Contenido |
-|---|---|
-| `01_Gestion` | Actas de reuniones, planificación y acuerdos del equipo |
-| `02_Entregas` | Documentos entregados en cada actividad |
-| `03_Diagramas` | Diagramas UML (clases, comunicación) y modelo de datos |
-| `04_Diseño` | Wireframes, mockups, logo y paleta de colores |
-| `05_Investigacion` | Referencias, aplicaciones similares y documentación externa |
-| `06_Recursos` | Imágenes, iconos y fuentes |
-| `07_Defensa` | Presentación y guion para el tribunal |
-
-Las carpetas se numeran para mantener un orden fijo y cada una tiene un único
-propósito, de modo que cualquier integrante sabe dónde guardar o buscar un archivo.
-
-**Alternativas consideradas:**
-| Alternativa | Motivo de descarte |
-|---|---|
-| Guardar estos archivos en el repositorio | Mezcla documentos y binarios (imágenes, PDF) con el código del producto |
-| OneDrive / Dropbox | Funcionalidad equivalente; Google Drive ya lo usaba todo el equipo |
-
-## 5. Espacio de trabajo (Google Drive)
-
-Carpeta compartida `Feudo` con los tres integrantes como editores. Contiene todos
-los archivos que no forman parte del producto publicado.
-
-| Carpeta | Contenido |
-|---|---|
-| `01_Gestion` | Actas de reuniones, planificación y acuerdos del equipo |
-| `02_Entregas` | Documentos entregados en cada actividad |
-| `03_Diagramas` | Diagramas UML (clases, comunicación) y modelo de datos |
-| `04_Diseño` | Wireframes, mockups, logo y paleta de colores |
-| `05_Investigacion` | Referencias, aplicaciones similares y documentación externa |
-| `06_Recursos` | Imágenes, iconos y fuentes |
-| `07_Defensa` | Presentación y guion para el tribunal |
-
-Las carpetas se numeran para mantener un orden fijo y cada una tiene un único
-propósito, de modo que cualquier integrante sabe dónde guardar o buscar un archivo.
-
-**Alternativas consideradas:**
-| Alternativa | Motivo de descarte |
-|---|---|
-| Guardar estos archivos en el repositorio | Mezcla documentos y binarios (imágenes, PDF) con el código del producto |
-| OneDrive / Dropbox | Funcionalidad equivalente; Google Drive ya lo usaba todo el equipo |
-
-# Feudo · Gestión del proyecto en fase de producción
-
-**Equipo:** Santiago Vivero, Samuel Izquierdo, Pau Montes
-**Fecha:** [fecha de entrega]
-
-## 1. Enlaces
-
-| Herramienta | Enlace |
-|---|---|
-| Repositorio (GitHub) | https://github.com/paumonts04/feudo |
-| Espacio de trabajo (Google Drive) | [enlace a la carpeta Feudo] |
-| Gestor de tareas (Google Sheets) | https://docs.google.com/spreadsheets/d/1PM-yw2Ml7tYWGWedb58pwCYjjr7BKV1q7VCSsqFV-Sk/edit |
-
-## 2. Repositorio común (GitHub)
-
-Repositorio privado `paumonts04/feudo` con los tres integrantes como colaboradores.
-Se trabaja con tres tipos de ramas: `main` (versiones entregadas), `develop` (integración,
-rama por defecto) y `feature/<nombre>` (una por funcionalidad, integrada mediante Pull Request).
-
-**Licencia:** MIT. Permite usar, copiar y modificar el código manteniendo la autoría.
-
-**Estructura de carpetas:**
-
-| Carpeta / archivo | Función |
-|---|---|
-| `client/` | Aplicación web en React + Vite |
-| `database/` | Script `schema.sql` que crea la base de datos en Supabase |
-| `docs/` | Documentación técnica del proyecto |
-| `.gitignore` | Excluye dependencias (`node_modules/`), builds (`dist/`), logs y archivos `.env` con credenciales |
-| `README.md` | Presentación del proyecto: descripción, equipo, tecnologías y entregas |
-| `LICENSE` | Texto de la licencia MIT |
-
-[Captura: página principal del repositorio con las carpetas y el README]
-[Captura: Settings → Collaborators con los tres integrantes]
-[Captura: archivo LICENSE]
-
-## 3. Espacio de trabajo (Google Drive)
-
-Carpeta compartida `Feudo`, con los tres integrantes como editores, para todos los
-archivos que no forman parte del producto publicado.
-
-| Carpeta | Función |
-|---|---|
-| `01_Gestion` | Planificación, actas de reuniones y gestor de tareas |
-| `02_Entregas` | Documentos entregados en cada actividad |
-| `03_Diagramas` | Diagramas UML (clases, comunicación) y modelo de datos |
-| `04_Diseño` | Wireframes, mockups, logo y paleta de colores |
-| `05_Investigacion` | Referencias, aplicaciones similares y documentación externa |
-| `06_Recursos` | Imágenes, iconos y fuentes |
-| `07_Defensa` | Presentación y guion para el tribunal |
-
-Las carpetas están numeradas para mantener siempre el mismo orden.
-
-[Captura: carpeta Feudo con las subcarpetas]
-[Captura: ventana Compartir con los tres integrantes]
-
-## 4. Gestor de tareas (Google Sheets)
-
-Hoja de cálculo `Hoja de Tareas`, dentro de `01_Gestion`. Cada tarea tiene:
-
-| Campo | Valores | Uso |
-|---|---|---|
-| ID | T01, T02… | Identificar la tarea (también en los commits) |
-| Módulo | Gestión, Infraestructura, Base de Datos, Autenticación, Comunidad, Moderación, Administración, Documentación | Categoría |
-| Estado | Pendiente, En progreso, Completada | Seguimiento |
-| Prioridad | Alta, Media, Baja | Orden en que se aborda |
-| Importancia | Imprescindible, Recomendable, Opcional | Si es necesaria para la entrega o puede recortarse |
-| Asignado | Santiago, Samuel, Pau | Responsable |
-| Entrega | v1, v2 | Versión a la que pertenece |
-
-Todos los campos de valores cerrados usan desplegables con validación, y un filtro en la
-cabecera permite ver qué está haciendo cada integrante en cada momento.
-
-[Captura: hoja de tareas completa con los desplegables]
-[Captura: filtro aplicado por Asignado o por Estado]
-
-## 5. Listado de tareas actuales
-
-| ID | Módulo | Tarea | Estado | Prioridad |
-|---|---|---|---|---|
-| T01 | Infraestructura | Inicializar proyecto React + Vite | En progreso | Alta |
-| T02 | Infraestructura | Instalar dependencias (react-router-dom, supabase-js) | En progreso | Alta |
-| T03 | Infraestructura | Configurar enrutador con rutas públicas y protegidas | Pendiente | Alta |
-| T04 | Infraestructura | Configurar cliente de Supabase y variables .env | Pendiente | Alta |
-| T05 | Autenticación | Maquetar formulario de Login | En progreso | Alta |
-| T06 | Autenticación | Conectar Login con Supabase Auth | Pendiente | Alta |
-| T07 | Autenticación | Maquetar formulario de Registro | Pendiente | Alta |
-| T08 | Autenticación | Conectar Registro con Supabase Auth | Pendiente | Alta |
-| T09 | Comunidad | Layout principal del Foro y Navbar | Pendiente | Alta |
-| T10 | Comunidad | Componente PostCard | Pendiente | Alta |
-| T11 | Comunidad | Formulario para publicar (CreatePost) | Pendiente | Alta |
-| T12 | Comunidad | Conectar publicaciones con Supabase | Pendiente | Alta |
-| T13 | Comunidad | CommentList y formulario de comentarios | Pendiente | Media |
-| T14 | Administración | Pantalla de gestión de usuarios (Panel Admin) | Pendiente | Media |
-| T15 | Moderación | Interfaz para ocultar y mostrar posts y comentarios | Pendiente | Media |
-| T16 | Base de Datos | Rehacer esquema de Supabase y políticas RLS | En progreso | Alta |
-| T17 | Gestión | Crear el repositorio nuevo | Completada | Alta |
-| T18 | Base de Datos | Crear perfiles, posts y comentarios con RLS | Completada | Alta |
-| T19 | Gestión | Añadir licencia MIT | Completada | Alta |
-| T20 | Gestión | Crear y compartir el espacio de trabajo en Drive | Completada | Alta |
-
 
 ### Tabla `me_gusta`
 Equivale a la clase `MeGusta` del diagrama (composición con `Post`).
@@ -332,8 +276,7 @@ Equivale a la clase `MeGusta` del diagrama (composición con `Post`).
 - El índice que crea esa restricción también se usa para contar los me gusta de
   un post, por lo que no se añade un índice adicional.
 
-
-  ### Políticas RLS de `me_gusta`
+### Políticas RLS de `me_gusta`
 | Operación | Quién | Condición |
 |---|---|---|
 | SELECT | Usuarios autenticados | Todos (para mostrar contadores) |
@@ -364,7 +307,6 @@ un post o comentario. Se invocan desde React con `supabase.rpc()`.
 **Alternativa descartada:** una política RLS de UPDATE para moderadores. RLS controla
 filas, no columnas, por lo que también podrían modificar el contenido o el autor.
 
-
 ### Funciones de administración
 - `cambiar_baneo(p_usuario_id, p_baneado)`: banea (`true`) o desbanea (`false`).
 - `cambiar_rol(p_usuario_id, p_rol)`: asigna `USUARIO`, `MODERADOR` o `ADMIN`.
@@ -377,7 +319,7 @@ filas, no columnas, por lo que también podrían modificar el contenido o el aut
 - Son la única vía para modificar `baneado` y `rol`, ya que `perfiles` no tiene
   política de UPDATE.
 
-  ### Creación del primer administrador
+### Creación del primer administrador
 Como solo un ADMIN puede asignar roles, el primer administrador se asigna manualmente
 desde el SQL Editor de Supabase (que se ejecuta como `postgres` y no está sujeto a RLS),
 una vez registrado el usuario desde la aplicación. A partir de ahí, el resto de roles
@@ -386,3 +328,52 @@ se gestionan desde el panel de administración.
 No es posible crear usuarios desde el panel de Supabase (Authentication → Add user):
 al no enviar el `nombre` en los metadatos, el trigger `crear_perfil()` falla y se cancela
 el alta, lo que confirma que no pueden existir usuarios sin perfil.
+
+## 4. Espacio de trabajo (Google Drive)
+
+Carpeta compartida `Feudo` con los tres integrantes como editores. Contiene todos
+los archivos que no forman parte del producto publicado.
+
+| Carpeta | Contenido |
+|---|---|
+| `01_Gestion` | Actas de reuniones, planificación, acuerdos del equipo y gestor de tareas |
+| `02_Entregas` | Documentos entregados en cada actividad |
+| `03_Diagramas` | Diagramas UML (clases, comunicación) y modelo de datos |
+| `04_Diseño` | Wireframes, mockups, logo y paleta de colores |
+| `05_Investigacion` | Referencias, aplicaciones similares y documentación externa |
+| `06_Recursos` | Imágenes, iconos y fuentes |
+| `07_Defensa` | Presentación y guion para el tribunal |
+
+Las carpetas se numeran para mantener un orden fijo y cada una tiene un único
+propósito, de modo que cualquier integrante sabe dónde guardar o buscar un archivo.
+
+| Alternativa | Motivo de descarte |
+|---|---|
+| Guardar estos archivos en el repositorio | Mezcla documentos y binarios (imágenes, PDF) con el código del producto |
+| OneDrive / Dropbox | Funcionalidad equivalente; Google Drive ya lo usaba todo el equipo |
+
+## 5. Gestor de tareas (Google Sheets)
+
+Las tareas se gestionan en la hoja `Hoja de Tareas`, dentro de `01_Gestion` en Drive.
+
+| Columna | Valores | Uso |
+|---|---|---|
+| ID | T01, T02… | Referenciar tareas (por ejemplo, en commits y Pull Requests) |
+| Módulo | Gestión, Infraestructura, Base de Datos, Autenticación, Comunidad, Moderación, Administración, Documentación | Categoría de la tarea |
+| Tarea | Texto | Descripción concreta |
+| Estado | Pendiente, En progreso, Completada | Seguimiento |
+| Prioridad | Alta, Media, Baja | Orden en que se aborda |
+| Importancia | Imprescindible, Recomendable, Opcional | Si es necesaria para la entrega o puede recortarse |
+| Asignado | Santiago, Samuel, Pau | Responsable |
+| Entrega | v1, v2 | Versión a la que pertenece |
+
+- Todas las columnas de valores cerrados usan **desplegables con validación**, para
+  evitar valores inconsistentes, y colores para identificar el estado de un vistazo.
+- Un **filtro** en la cabecera, por responsable y estado, muestra en todo momento qué
+  está haciendo cada integrante.
+
+| Alternativa | Motivo de descarte |
+|---|---|
+| Notion | Requiere aprender otra herramienta; Sheets ya está integrado en el espacio de trabajo |
+| GitHub Projects | Muy orientado al código; parte de las tareas son de gestión y documentación |
+| Trello | Prioridades y categorías más limitadas en la versión gratuita |
