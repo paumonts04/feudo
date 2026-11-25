@@ -6,7 +6,7 @@ Autores: Santiago Vivero, Samuel Izquierdo, Pau Montes
 
 ### Decisión
 El código se gestiona con **Git** y se aloja en **GitHub** (`paumonts04/feudo`, repositorio
-privado), con los tres integrantes del equipo como colaboradores.
+público), con los tres integrantes del equipo como colaboradores.
 
 El repositorio se creó de nuevo al cambiar la arquitectura (eliminación del backend Express).
 El repositorio anterior se renombró a `feudo-old` y se archivó en lugar de borrarse,
@@ -16,7 +16,10 @@ para conservar el trabajo previo sin que interfiera con el nuevo.
 - **Git** permite trabajar los tres en paralelo, revisar cambios y volver a versiones anteriores.
 - **GitHub** centraliza el código, facilita las Pull Requests para revisar el trabajo
   entre compañeros y deja constancia del historial de cada integrante.
-- **Repositorio privado** hasta la defensa, para proteger el trabajo.
+- **Repositorio público**, para que el profesorado y el tribunal puedan consultar el código
+  y su historial sin necesidad de invitaciones. Es seguro porque no contiene credenciales:
+  las claves van en `.env.local`, excluido por `.gitignore`, y la protección de los datos
+  depende de las políticas RLS, no de ocultar el código.
 
 | Alternativa | Motivo de descarte |
 |---|---|
