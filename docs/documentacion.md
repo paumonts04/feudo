@@ -71,6 +71,11 @@ qué incluye y los ID de las tareas del gestor que resuelve. Tras el merge, la r
 `feature/*` se elimina. Los cambios que solo afectan a la documentación (`docs/`,
 `README.md`) pueden subirse directamente a `develop`.
 
+Durante el desarrollo se subió por error un proyecto Next.js directamente a `main`.   ← AQUÍ
+Como aún no se había entregado ninguna versión, se restableció `main` a su commit
+inicial (`git reset --hard` + `git push --force-with-lease`), y se acordó crear siempre
+las ramas de funcionalidad desde `develop`.
+
 | Alternativa | Motivo de descarte |
 |---|---|
 | Trabajar todos en `main` | Riesgo de romper la versión estable y conflictos constantes |
