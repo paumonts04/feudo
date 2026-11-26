@@ -40,7 +40,8 @@ clave pública: los datos los protege RLS. La clave `service_role` nunca se usa 
 
 ### Sesión compartida con un contexto de React
 **Qué:** `src/context/` (`AuthContext.js`, `AuthProvider.jsx` y `useAuth.js`) escucha `supabase.auth.onAuthStateChange` y comparte
-la sesión con toda la app mediante el hook `useAuth()`.
+la sesión con toda la app mediante el hook `useAuth()`. También carga el perfil del usuario
+(nombre, rol y baneo) de la tabla `perfiles`.
 
 **Por qué:** cualquier componente sabe si hay usuario sin llamar a Supabase, y la interfaz
 reacciona sola al iniciar o cerrar sesión. El estado `cargando` evita mandar al login a
@@ -87,3 +88,13 @@ sesión y las rutas redirigen solas.
 
 **Por qué:** un único sitio decide a dónde ir según haya sesión o no, y se evitan
 redirecciones duplicadas o contradictorias.
+
+### Rol leído de la tabla perfiles
+**Qué:** el rol y el estado de baneo se leen de `public.perfiles`, no de los metadatos del
+usuario.
+
+**Por qué:** los metadatos (`user_metadata`) los puede modificar el propio usuario con
+`updateUser`, así que no son fiables. Además, el rol en el cliente solo decide qué se
+muestra: los permisos reales los comprueba la base de datos con RLS y funciones SQL.
+
+**Descartado:** leer el rol de `user_metadata` o del JWT.

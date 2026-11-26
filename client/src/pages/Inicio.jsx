@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabaseClient'
 
 // Página de inicio (provisional), solo accesible con sesión.
 export function Inicio() {
-  const { sesion } = useAuth()
+  const { perfil, errorPerfil } = useAuth()
   const [error, setError] = useState('')
 
   // Al cerrar sesión, RutaProtegida redirige sola a "/login".
@@ -17,7 +17,13 @@ export function Inicio() {
   return (
     <>
       <h2>Inicio</h2>
-      <p>Has iniciado sesión como {sesion.user.email}</p>
+      {errorPerfil && <p role="alert">No se ha podido cargar tu perfil</p>}
+      {perfil && (
+        <>
+          <p>Hola, {perfil.nombre}</p>
+          <p>Rol: {perfil.rol}</p>
+        </>
+      )}
       {/* Provisional: el botón se moverá a la barra de navegación (tarea T09). */}
       <button type="button" onClick={cerrarSesion}>
         Cerrar sesión
