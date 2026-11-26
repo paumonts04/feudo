@@ -83,9 +83,10 @@ del Drive del equipo), con ID `T01`, `T02`... Puedes citar el ID en el commit.
 - ✅ Base de datos v1 completa: tablas, RLS, trigger de perfiles y funciones de moderación
   y administración (`database/schema.sql`).
 - ✅ Cliente base: Vite, `supabase-js`, `react-router-dom`, `src/lib/supabaseClient.js`.
-- ⏳ Cada integrante debe crear su `client/.env.local` (ver `client/.env.example`).
-- ⏳ Siguiente: login y registro (rama `feature/auth`), rutas públicas y protegidas.
-- ⏳ Después: foro, moderación y panel de administración.
+- ✅ Autenticación completa: registro, login, cierre de sesión, rutas públicas y protegidas,
+  y contexto con la sesión y el perfil del usuario mediante `useAuth()`.
+- ⏳ Siguiente: foro (layout y barra de navegación, posts, comentarios y me gusta).
+- ⏳ Después: moderación y panel de administración.
 - ⏳ Primer ADMIN: se asigna a mano en el SQL Editor tras registrarse (ver `database/AGENTS.md`).
 
 ## Cómo arrancar
