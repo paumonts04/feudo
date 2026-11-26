@@ -49,3 +49,12 @@ recarga en caliente de Vite exige que los `.jsx` exporten solo componentes.
 
 **Descartado:** consultar la sesión en cada componente (código repetido); Redux o Zustand
 (dependencia innecesaria para un único estado global).
+
+### Rutas protegidas
+**Qué:** `RutaProtegida` redirige a `/login` si no hay sesión y `RutaInvitado` redirige a `/`
+si ya la hay (login y registro). Las rutas usan layouts con `<Outlet />`.
+
+**Por qué:** mejora la experiencia de usuario. No es una medida de seguridad: aunque se
+salte la redirección, sin sesión las políticas RLS no devuelven datos.
+
+**Descartado:** comprobar la sesión dentro de cada página (código repetido).

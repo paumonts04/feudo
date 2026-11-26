@@ -1,13 +1,29 @@
-import { useAuth } from './context/useAuth'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { RutaInvitado } from './components/RutaInvitado'
+import { RutaProtegida } from './components/RutaProtegida'
+import { Inicio } from './pages/Inicio'
+import { Login } from './pages/Login'
+import { Registro } from './pages/Registro'
 
 function App() {
-  const { sesion, cargando } = useAuth()
-
   return (
     <main>
       <h1>Feudo</h1>
-      {/* Comprobación temporal del estado de la sesión */}
-      <p>{cargando ? 'Cargando...' : sesion ? 'Con sesión' : 'Sin sesión'}</p>
+      <Routes>
+        {/* Solo sin sesión: login y registro */}
+        <Route element={<RutaInvitado />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/registro" element={<Registro />} />
+        </Route>
+
+        {/* Solo con sesión */}
+        <Route element={<RutaProtegida />}>
+          <Route path="/" element={<Inicio />} />
+        </Route>
+
+        {/* Cualquier otra URL vuelve al inicio */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </main>
   )
 }
