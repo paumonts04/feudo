@@ -39,12 +39,62 @@ clave pública: los datos los protege RLS. La clave `service_role` nunca se usa 
 **Descartado:** cambiar pantallas con `useState` (sin URLs); TanStack Router (menos extendido).
 
 ### Sesión compartida con un contexto de React
-**Qué:** `src/context/AuthContext.jsx` escucha `supabase.auth.onAuthStateChange` y comparte
-la sesión con toda la app mediante el hook `useAuth()`.
+**Qué:** `src/context/` (`AuthContext.js`, `AuthProvider.jsx` y `useAuth.js`) escucha `supabase.auth.onAuthStateChange` y comparte
+la sesión con toda la app mediante el hook `useAuth()`. También carga el perfil del usuario
+(nombre, rol y baneo) de la tabla `perfiles`.
 
 **Por qué:** cualquier componente sabe si hay usuario sin llamar a Supabase, y la interfaz
 reacciona sola al iniciar o cerrar sesión. El estado `cargando` evita mandar al login a
-alguien con sesión mientras Supabase la recupera.
+alguien con sesión mientras Supabase la recupera. Se separa en tres archivos porque la
+recarga en caliente de Vite exige que los `.jsx` exporten solo componentes.
 
 **Descartado:** consultar la sesión en cada componente (código repetido); Redux o Zustand
 (dependencia innecesaria para un único estado global).
+
+### Rutas protegidas
+**Qué:** `RutaProtegida` redirige a `/login` si no hay sesión y `RutaInvitado` redirige a `/`
+si ya la hay (login y registro). Las rutas usan layouts con `<Outlet />`.
+
+**Por qué:** mejora la experiencia de usuario. No es una medida de seguridad: aunque se
+salte la redirección, sin sesión las políticas RLS no devuelven datos.
+
+**Descartado:** comprobar la sesión dentro de cada página (código repetido).
+
+### Registro
+**Qué:** formulario que llama a `supabase.auth.signUp` enviando el `nombre` en los metadatos;
+el perfil lo crea el trigger `crear_perfil()`.
+
+**Por qué:** el alta y el perfil se crean en una sola operación en la base de datos. La
+validación del formulario solo da feedback rápido; la regla real (nombre único de 3 a 30
+caracteres) está en la base de datos.
+
+**Descartado:** insertar el perfil desde React tras el registro (dos operaciones que pueden
+quedar a medias).
+
+### Confirmación por email desactivada
+**Qué:** en Supabase Auth está desactivada la opción "Confirm email": el usuario inicia
+sesión nada más registrarse.
+
+**Por qué:** el servidor de correo incluido en Supabase solo permite enviar unos pocos
+emails por hora, insuficiente para desarrollar y probar. El formulario ya contempla el caso
+de confirmación activada, por lo que se puede activar más adelante sin cambiar código.
+
+**Descartado:** configurar un proveedor de correo propio (SMTP), innecesario en la v1.
+
+### Inicio y cierre de sesión
+**Qué:** el login usa `supabase.auth.signInWithPassword` y el cierre de sesión
+`supabase.auth.signOut`. Ninguno navega manualmente: el contexto detecta el cambio de
+sesión y las rutas redirigen solas.
+
+**Por qué:** un único sitio decide a dónde ir según haya sesión o no, y se evitan
+redirecciones duplicadas o contradictorias.
+
+### Rol leído de la tabla perfiles
+**Qué:** el rol y el estado de baneo se leen de `public.perfiles`, no de los metadatos del
+usuario.
+
+**Por qué:** los metadatos (`user_metadata`) los puede modificar el propio usuario con
+`updateUser`, así que no son fiables. Además, el rol en el cliente solo decide qué se
+muestra: los permisos reales los comprueba la base de datos con RLS y funciones SQL.
+
+**Descartado:** leer el rol de `user_metadata` o del JWT.

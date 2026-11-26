@@ -16,6 +16,9 @@ Lee primero el `AGENTS.md` de la raíz.
 - Variables de entorno (en `client/.env.local`, con prefijo obligatorio `VITE_`):
   - `VITE_SUPABASE_URL`
   - `VITE_SUPABASE_PUBLISHABLE_KEY`
+- La sesión y el perfil se leen con `useAuth()` (`src/context/useAuth.js`), que devuelve
+  `sesion`, `perfil`, `errorPerfil` y `cargando`. **No vuelvas a consultar el perfil** en
+  cada página.
 
 ## Datos disponibles (resumen; detalle en `database/AGENTS.md`)
 | Tabla | Columnas |
