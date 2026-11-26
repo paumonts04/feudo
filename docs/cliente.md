@@ -58,3 +58,24 @@ si ya la hay (login y registro). Las rutas usan layouts con `<Outlet />`.
 salte la redirección, sin sesión las políticas RLS no devuelven datos.
 
 **Descartado:** comprobar la sesión dentro de cada página (código repetido).
+
+### Registro
+**Qué:** formulario que llama a `supabase.auth.signUp` enviando el `nombre` en los metadatos;
+el perfil lo crea el trigger `crear_perfil()`.
+
+**Por qué:** el alta y el perfil se crean en una sola operación en la base de datos. La
+validación del formulario solo da feedback rápido; la regla real (nombre único de 3 a 30
+caracteres) está en la base de datos.
+
+**Descartado:** insertar el perfil desde React tras el registro (dos operaciones que pueden
+quedar a medias).
+
+### Confirmación por email desactivada
+**Qué:** en Supabase Auth está desactivada la opción "Confirm email": el usuario inicia
+sesión nada más registrarse.
+
+**Por qué:** el servidor de correo incluido en Supabase solo permite enviar unos pocos
+emails por hora, insuficiente para desarrollar y probar. El formulario ya contempla el caso
+de confirmación activada, por lo que se puede activar más adelante sin cambiar código.
+
+**Descartado:** configurar un proveedor de correo propio (SMTP), innecesario en la v1.
