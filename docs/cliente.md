@@ -39,12 +39,13 @@ clave pública: los datos los protege RLS. La clave `service_role` nunca se usa 
 **Descartado:** cambiar pantallas con `useState` (sin URLs); TanStack Router (menos extendido).
 
 ### Sesión compartida con un contexto de React
-**Qué:** `src/context/AuthContext.jsx` escucha `supabase.auth.onAuthStateChange` y comparte
+**Qué:** `src/context/` (`AuthContext.js`, `AuthProvider.jsx` y `useAuth.js`) escucha `supabase.auth.onAuthStateChange` y comparte
 la sesión con toda la app mediante el hook `useAuth()`.
 
 **Por qué:** cualquier componente sabe si hay usuario sin llamar a Supabase, y la interfaz
 reacciona sola al iniciar o cerrar sesión. El estado `cargando` evita mandar al login a
-alguien con sesión mientras Supabase la recupera.
+alguien con sesión mientras Supabase la recupera. Se separa en tres archivos porque la
+recarga en caliente de Vite exige que los `.jsx` exporten solo componentes.
 
 **Descartado:** consultar la sesión en cada componente (código repetido); Redux o Zustand
 (dependencia innecesaria para un único estado global).

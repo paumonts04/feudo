@@ -1,8 +1,6 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
-
-// Contexto con la sesión del usuario, compartido por toda la aplicación.
-const AuthContext = createContext(null)
+import { AuthContext } from './AuthContext'
 
 // Envuelve la app y mantiene la sesión sincronizada con Supabase Auth.
 export function AuthProvider({ children }) {
@@ -27,9 +25,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   )
-}
-
-// Hook para leer la sesión desde cualquier componente: const { sesion, cargando } = useAuth()
-export function useAuth() {
-  return useContext(AuthContext)
 }
