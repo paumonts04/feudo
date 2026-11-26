@@ -79,3 +79,11 @@ emails por hora, insuficiente para desarrollar y probar. El formulario ya contem
 de confirmación activada, por lo que se puede activar más adelante sin cambiar código.
 
 **Descartado:** configurar un proveedor de correo propio (SMTP), innecesario en la v1.
+
+### Inicio y cierre de sesión
+**Qué:** el login usa `supabase.auth.signInWithPassword` y el cierre de sesión
+`supabase.auth.signOut`. Ninguno navega manualmente: el contexto detecta el cambio de
+sesión y las rutas redirigen solas.
+
+**Por qué:** un único sitio decide a dónde ir según haya sesión o no, y se evitan
+redirecciones duplicadas o contradictorias.
