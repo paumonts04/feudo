@@ -10,7 +10,7 @@ cerrada, conquista el área que queda dentro; si otro usuario corre después por
 se la arrebata. Hay un ranking por área conquistada.
 
 El proyecto se defiende ante un tribunal: **cada decisión técnica debe poder justificarse**
-y queda documentada en `docs/documentacion.md`.
+y queda documentada en `docs/` (índice en `docs/README.md`).
 
 ## Entregas
 - **v1 (diciembre 2026)** — en curso: web con usuarios, roles, foro y moderación. Sin mapa ni GPS.
@@ -43,7 +43,7 @@ contraseñas, rol guardado en el JWT.
 |---|---|
 | `client/` | Aplicación web React + Vite |
 | `database/schema.sql` | Esquema completo de Supabase (fuente de verdad del SQL) |
-| `docs/documentacion.md` | Documentación técnica con la justificación de cada decisión |
+| `docs/` | Documentación técnica: decisiones y su justificación, dividida por temas |
 | `README.md` | Presentación del proyecto |
 | `LICENSE` | Licencia MIT |
 
@@ -72,9 +72,10 @@ Las tareas están en una hoja de Google Sheets (`Hoja de Tareas`, carpeta `01_Ge
 del Drive del equipo), con ID `T01`, `T02`... Puedes citar el ID en el commit.
 
 ## Documentación
-- Todo cambio relevante (tecnología nueva, tabla, decisión de diseño) debe añadirse a
-  `docs/documentacion.md`, explicando **qué se hizo, por qué y qué alternativas se
-  descartaron**.
+- Solo se documentan **decisiones** (tecnología, librería, organización, regla de
+  seguridad), en el archivo de `docs/` que corresponda y con el formato corto
+  **Qué / Por qué / Descartado** descrito en `docs/README.md`.
+- El funcionamiento del código se explica con comentarios breves en el propio código.
 - Idioma de todo el proyecto (código, comentarios, documentación, interfaz): **español**.
 
 ## Estado actual (actualizar al avanzar)

@@ -15,7 +15,7 @@ Lee primero el `AGENTS.md` de la raíz.
   (`public.tabla`).
 - Las comprobaciones de rol usan `coalesce(public.rol_actual(), 'USUARIO')`, porque sin
   sesión `rol_actual()` devuelve `null` y `null not in (...)` no es verdadero.
-- Cualquier cambio se documenta en `docs/documentacion.md` (sección "Base de datos").
+- Las decisiones nuevas se documentan en `docs/base-de-datos.md` (formato en `docs/README.md`).
 
 ## Esquema actual
 - Enum `rol`: `USUARIO`, `MODERADOR`, `ADMIN`.
