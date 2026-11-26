@@ -64,4 +64,4 @@ La interfaz debe avisarles y ocultar esos botones.
 - Interfaz, nombres de componentes y comentarios en español.
 - Componentes en PascalCase (`PostCard.jsx`); funciones y variables en camelCase.
 - Al instalar una dependencia, haz commit de `package.json` y `package-lock.json`,
-  y documenta en `docs/documentacion.md` por qué se eligió.
+  y documenta en `docs/cliente.md` por qué se eligió.

@@ -1,0 +1,50 @@
+# Cliente web (React + Vite)
+
+### React + Vite en `client/`
+**Qué:** la web se hace con React y se crea y ejecuta con Vite, en la carpeta `client/`.
+Se partió de la plantilla oficial, sin los recursos de ejemplo.
+
+**Por qué:** React es el estándar de componentes que conoce el equipo; Vite arranca al
+instante y recarga en caliente. La carpeta propia deja sitio para la app móvil de la v2.
+
+**Descartado:** Create React App (abandonado); Next.js (orientado a servidor, innecesario
+sin backend); Angular/Vue (menos experiencia del equipo).
+
+### ESLint
+**Qué:** linter con la configuración por defecto de Vite.
+
+**Por qué:** avisa de errores y malas prácticas (como un mal uso de los hooks) antes de ejecutar.
+
+**Descartado:** OxLint (más reciente y con menos reglas; la velocidad no importa a este tamaño).
+
+### Conexión con `supabase-js`
+**Qué:** librería oficial `@supabase/supabase-js`. El cliente se crea una sola vez en
+`src/lib/supabaseClient.js` y se importa desde toda la app.
+
+**Por qué:** gestiona consultas, sesión, token y llamadas `rpc`. Una única instancia
+evita sesiones duplicadas.
+
+### Variables de entorno
+**Qué:** `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` van en `client/.env.local`,
+que no se sube. `client/.env.example` tiene los nombres sin valores.
+
+**Por qué:** Vite solo expone al cliente las variables con prefijo `VITE_`. Solo se usa la
+clave pública: los datos los protege RLS. La clave `service_role` nunca se usa en el cliente.
+
+### Navegación con React Router
+**Qué:** `react-router-dom` gestiona las pantallas (login, registro, foro, administración).
+
+**Por qué:** cada pantalla tiene su URL: se puede recargar, compartir y usar el botón atrás.
+
+**Descartado:** cambiar pantallas con `useState` (sin URLs); TanStack Router (menos extendido).
+
+### Sesión compartida con un contexto de React
+**Qué:** `src/context/AuthContext.jsx` escucha `supabase.auth.onAuthStateChange` y comparte
+la sesión con toda la app mediante el hook `useAuth()`.
+
+**Por qué:** cualquier componente sabe si hay usuario sin llamar a Supabase, y la interfaz
+reacciona sola al iniciar o cerrar sesión. El estado `cargando` evita mandar al login a
+alguien con sesión mientras Supabase la recupera.
+
+**Descartado:** consultar la sesión en cada componente (código repetido); Redux o Zustand
+(dependencia innecesaria para un único estado global).
